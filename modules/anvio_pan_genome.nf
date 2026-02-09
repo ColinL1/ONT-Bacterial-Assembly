@@ -2,6 +2,11 @@ process ANVIO_PAN_GENOME {
     label 'process_high'
     publishDir "${params.outdir}/anvio/pangenome", mode: 'copy'
 
+    conda "bioconda::anvio=8.0"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/anvio:8.0--pyh7cba7a3_1' :
+        'meren/anvio:8' }"
+
     input:
     path(genomes_storage)
 

@@ -6,6 +6,11 @@ process PORECHOP {
     errorStrategy  'ignore'
     publishDir "${params.outdir}/qc/trimmed", mode: 'copy'
 
+    conda "bioconda::porechop_abi=0.5.0"
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/porechop_abi:0.5.0post1--py310h275bdba_0'
+        : 'biocontainers/porechop_abi:0.5.0post1--py310h275bdba_0'}"
+
     input:
     tuple val(sample_id), path(reads)
 

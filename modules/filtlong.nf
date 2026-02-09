@@ -3,6 +3,11 @@ process FILTLONG {
     label 'process_low'
     publishDir "${params.outdir}/qc/filtered", mode: 'copy'
 
+    conda "bioconda::filtlong=0.2.1"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/filtlong:0.2.1--h9a82719_0' :
+        'biocontainers/filtlong:0.2.1--h9a82719_0' }"
+
     input:
     tuple val(sample_id), path(trimmed_reads)
     val genome_size

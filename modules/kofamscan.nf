@@ -3,6 +3,11 @@ process KOFAMSCAN {
     label 'process_medium'
     publishDir "${params.outdir}/pathways/${sample_id}", mode: 'copy'
 
+    conda "bioconda::kofamscan=1.3.0"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/kofamscan:1.3.0--hdfd78af_2':
+        'biocontainers/kofamscan:1.3.0--hdfd78af_2' }"
+
     input:
     tuple val(sample_id), path(faa)
 

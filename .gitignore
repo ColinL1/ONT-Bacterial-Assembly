@@ -1,4 +1,4 @@
 .vscode
 work/
 results/*
-input/*.gz
+input/

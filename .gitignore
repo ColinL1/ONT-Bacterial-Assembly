@@ -2,3 +2,7 @@
 work/
 results/*
 input/
+binac2.config
+nextflow.config.backup
+nextflow.config
+environment.yml.backup

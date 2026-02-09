@@ -1,0 +1,181 @@
+/*
+=============================================================================================
+    Nextflow Configuration File - ONT-Bacterial-Assembly Bacterial Genome Analysis Pipeline
+=============================================================================================
+    Example configuration file - Copy this to nextflow.config and adjust paths
+*/
+
+// Global default params
+params {
+    // Input/Output
+    input = "${projectDir}/input"
+    outdir = "${projectDir}/results"
+    
+    // Genome parameters
+    genome_size = 4  // in megabases (4m = 4 Mb)
+    target_coverage = 200
+    
+    // Filtlong parameters
+    min_length = 1000
+    keep_percent = 90
+    
+    // Medaka model (adjust based on your basecaller version)
+    medaka_model = "r1041_e82_400bps_sup_v5.2.0"
+    
+    // Database paths - MUST BE SET BY USER
+    bakta_db = "/path/to/bakta/db"  // REQUIRED: Download with: bakta_db download
+    busco_db = "/path/to/busco_downloads"  // Optional: auto-downloads if not set
+    ko_list = "/path/to/kofamscan/ko_list"  // REQUIRED: Download from KEGG
+    ko_profiles = "/path/to/kofamscan/profiles/"  // REQUIRED: Download from KEGG
+
+    // Anvio settings
+    prepare_anvio_pangenome = true  // Set to false to skip pangenome preparation
+    project_name = "MyProject"      // Name for your pangenome project
+    anvio_run_cogs = true           // Set to false to skip NCBI COG annotation
+    anvio_run_kegg = true           // Set to false to skip KEGG KOfam annotation
+    minbit = 0.5                    // Minimum alignment coverage (default: 0.5)
+    mcl_inflation = 10              // MCL inflation parameter (default: 10)
+    min_occurrence = 2              // Minimum number of genomes a gene must be in to be included in pangenome (default: 2) 
+
+    // Process defaults
+    max_cpus = 8
+    max_memory = '32.GB'
+    max_time = '24.h'
+}
+
+// Process-specific resource requirements
+process {
+    // Default resources
+    cpus = 4
+    memory = '4.GB'
+    time = '2.h'
+
+    // Process labels
+    withLabel: 'process_low' {
+        cpus = 2
+        memory = '4.GB'
+        time = '2.h'
+    }
+    
+    withLabel: 'process_medium' {
+        cpus = 4
+        memory = '8.GB'
+        time = '4.h'
+    }
+    
+    withLabel: 'process_high' {
+        cpus = 8
+        memory = '32.GB'
+        time = '12.h'
+    }
+
+    // Process-specific settings
+    withName: 'FLYE' {
+        time = '24.h'
+    }
+
+    withName: 'MEDAKA' {
+        time = '12.h'
+    }
+    
+    withName: 'BUSCO' {
+        time = '8.h'
+    }
+    
+    withName: 'BAKTA' {
+        time = '8.h'
+    }
+}
+
+// Execution profiles
+profiles {
+    standard {
+        process.executor = 'local'
+    }
+
+    conda {
+        conda.enabled = true
+        conda.useMamba = true
+
+        process {            
+            // Override for anvi'o-specific processes (requires separate environment)
+            withName: 'ANVIO_.*' {
+                conda = "/path/to/conda/envs/anvio-8"
+            }
+        }
+    }
+
+    docker {
+        docker.enabled = true
+    }
+
+    singularity {
+        singularity.enabled = true
+        singularity.autoMounts = true
+    }
+    
+    // Example HPC cluster profile (adjust for your cluster)
+    cluster {
+        process {
+            executor = 'slurm'
+            queue = 'compute'
+            maxRetries = 2
+            scratch = '$TMPDIR'
+        }
+        
+        executor {
+            queueSize = 100
+            submitRateLimit = '10/1min'
+        }
+    }
+}
+
+// Nextflow settings
+manifest {
+    name = 'ONT-Bacterial-Genome-Pipeline'
+    author = 'Luigi Colin'
+    homePage = 'https://github.com/yourusername/ONT-Bacterial-Assembly'
+    description = 'Bacterial genome analysis pipeline for Nanopore sequencing data'
+    mainScript = 'main.nf'
+    nextflowVersion = '>=23.04.0'
+    version = '1.0.0'
+}
+
+// Execution reports
+timeline {
+    enabled = true
+    file = "${params.outdir}/pipeline_info/timeline_${new java.text.SimpleDateFormat('yyyy-MM-dd_HHmmss').format(new java.util.Date())}.html"
+}
+
+report {
+    enabled = true
+    file = "${params.outdir}/pipeline_info/report_${new java.text.SimpleDateFormat('yyyy-MM-dd_HHmmss').format(new java.util.Date())}.html"
+}
+
+trace {
+    enabled = true
+    file = "${params.outdir}/pipeline_info/trace_${new java.text.SimpleDateFormat('yyyy-MM-dd_HHmmss').format(new java.util.Date())}.txt"
+}
+
+dag {
+    enabled = true
+    file = "${params.outdir}/pipeline_info/dag_${new java.text.SimpleDateFormat('yyyy-MM-dd_HHmmss').format(new java.util.Date())}.dot"
+}
+
+// Optional: Email notifications (uncomment and configure)
+// notification {
+//     to = 'your.email@example.com'
+//     from = 'your.email@example.com'
+// }
+
+// mail {
+//     from = 'your.email@example.com'
+//     smtp.host = 'smtp.example.com'
+//     smtp.port = 587
+//     smtp.user = 'your.email@example.com'
+//     smtp.password = 'your-password'
+//     smtp.auth = true
+//     smtp.starttls.enable = true
+//     smtp.starttls.required = true
+//     smtp.ssl.protocols = 'TLSv1.2'
+// }

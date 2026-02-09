@@ -1,0 +1,4 @@
+.vscode
+work/
+results/*
+input/*.gz

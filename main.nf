@@ -13,6 +13,7 @@ include { QC_WORKFLOW } from './subworkflows/qc'
 include { ASSEMBLY_WORKFLOW } from './subworkflows/assembly'
 include { ANNOTATION_WORKFLOW } from './subworkflows/annotation'
 include { PREPARE_ANVIO_CONTIGS } from './subworkflows/prepare_anvio_contigs'
+include { COMPARATIVE_GENOMICS } from './subworkflows/comparative_genomics'
 
 // Import busco general QC
 include { BUSCO_PLOT } from './modules/busco-plot'
@@ -52,11 +53,17 @@ workflow {
     ANNOTATION_WORKFLOW(
         ASSEMBLY_WORKFLOW.out.polished_assembly
     )
+    
     ANNOTATION_WORKFLOW.out.mapper
     | collect
     | KEGGDECODER
 
-    // Run 
+    // After annotation workflow
+    COMPARATIVE_GENOMICS(
+        ASSEMBLY_WORKFLOW.out.polished_assembly,  // channel of polished .fasta files
+        ANNOTATION_WORKFLOW.out.proteins     // channel of .faa protein files
+    )
+    // Run if anvi pangenome preparation is enabled
     if (params.prepare_anvio_pangenome) {
         PREPARE_ANVIO_CONTIGS(
             ASSEMBLY_WORKFLOW.out.polished_assembly

@@ -31,27 +31,33 @@ workflow PREPARE_ANVIO_CONTIGS {
     
     // Run Pfam annotation
     ANVIO_RUN_PFAMS(ANVIO_RUN_HMMS.out.contigs_db)
+
+    // Run NCBI COG annotation
+    ANVIO_RUN_NCBI_COGS(ANVIO_RUN_PFAMS.out.contigs_db)
+
+    // Run KEGG KOfam annotation
+    ANVIO_RUN_KEGG_KOFAMS(ANVIO_RUN_NCBI_COGS.out.contigs_db)
+
+    // // Run NCBI COG annotation (optional - can be controlled via params)
+    // ch_for_cogs = params.anvio_run_cogs ? ANVIO_RUN_PFAMS.out.contigs_db : ANVIO_RUN_PFAMS.out.contigs_db
     
-    // Run NCBI COG annotation (optional - can be controlled via params)
-    ch_for_cogs = params.anvio_run_cogs ? ANVIO_RUN_PFAMS.out.contigs_db : ANVIO_RUN_PFAMS.out.contigs_db
+    // if (params.anvio_run_cogs) {
+    //     ANVIO_RUN_NCBI_COGS(ch_for_cogs)
+    //     ch_for_kegg = ANVIO_RUN_NCBI_COGS.out.contigs_db
+    // } else {
+    //     ch_for_kegg = ch_for_cogs
+    // }
     
-    if (params.anvio_run_cogs) {
-        ANVIO_RUN_NCBI_COGS(ch_for_cogs)
-        ch_for_kegg = ANVIO_RUN_NCBI_COGS.out.contigs_db
-    } else {
-        ch_for_kegg = ch_for_cogs
-    }
-    
-    // Run KEGG KOfam annotation (optional - can be controlled via params)
-    if (params.anvio_run_kegg) {
-        ANVIO_RUN_KEGG_KOFAMS(ch_for_kegg)
-        ch_final = ANVIO_RUN_KEGG_KOFAMS.out.contigs_db
-    } else {
-        ch_final = ch_for_kegg
-    }
+    // // Run KEGG KOfam annotation (optional - can be controlled via params)
+    // if (params.anvio_run_kegg) {
+    //     ANVIO_RUN_KEGG_KOFAMS(ch_for_kegg)
+    //     ch_final = ANVIO_RUN_KEGG_KOFAMS.out.contigs_db
+    // } else {
+    //     ch_final = ch_for_kegg
+    // }
     
     // Collect all contigs databases and create external genomes file
-    ch_final
+    ANVIO_RUN_KEGG_KOFAMS.out.contigs_db
         .map { sample_id, db -> 
             def db_path = db.toString()
             "${sample_id}\t${db_path}"
@@ -62,7 +68,7 @@ workflow PREPARE_ANVIO_CONTIGS {
         .set { ch_external_genomes }
     
     // Collect all contigs database files
-    ch_final
+    ANVIO_RUN_KEGG_KOFAMS.out.contigs_db
         .map { sample_id, db -> db }
         .collect()
         .set { ch_all_dbs }
@@ -79,7 +85,7 @@ workflow PREPARE_ANVIO_CONTIGS {
     )
     
     emit:
-    contigs_db = ch_final
+    contigs_db = ANVIO_RUN_KEGG_KOFAMS.out.contigs_db
     genomes_storage = ANVIO_GEN_GENOMES_STORAGE.out.genomes_storage
     pan_db = ANVIO_PAN_GENOME.out.pan_db
     pangenome = ANVIO_PAN_GENOME.out.pangenome

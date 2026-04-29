@@ -1,0 +1,32 @@
+{
+  "title": "ONT-Bacterial-Assembly",
+  "description": "A Nextflow pipeline for quality control, assembly, annotation, and comparative genomics of bacterial genomes from Nanopore sequencing data.",
+  "version": "0.9.0",
+  "upload_type": "software",
+  "license": "MIT",
+  "creators": [
+    {
+      "name": "Colin, Luigi",
+      "affiliation": "Department of Biology, University of Konstanz, Konstanz, Germany",
+      "orcid": "0000-0002-6966-2817"
+    }
+  ],
+  "keywords": [
+    "nextflow",
+    "bioinformatics",
+    "nanopore",
+    "bacterial genomics",
+    "genome assembly",
+    "genome annotation",
+    "comparative genomics",
+    "Oxford Nanopore Technologies"
+  ],
+  "access_right": "open",
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/ColinL1/ONT-Bacterial-Assembly",
+      "relation": "isSupplementTo",
+      "scheme": "url"
+    }
+  ]
+}

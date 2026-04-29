@@ -1,6 +1,6 @@
 # ONT-Bacterial-Assembly: Bacterial Genome Analysis Pipeline
 
-[![DOI](https://zenodo.org/badge/REPOSITORY_ID.svg)](https://zenodo.org/badge/latestdoi/REPOSITORY_ID)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19892322.svg)](https://doi.org/10.5281/zenodo.19892322)
 
 A Nextflow DSL2 pipeline for quality control, assembly, annotation, and comparative genomics of bacterial genomes from Nanopore sequencing data.
 
